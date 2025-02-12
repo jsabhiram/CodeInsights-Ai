@@ -1,26 +1,36 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import axios from 'axios';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "codeinsights-ai" is now active!');
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+const API_KEY = process.env.GEMINI_API_KEY;
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('codeinsights-ai.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from CodeInsights-Ai!');
-	});
-
-	context.subscriptions.push(disposable);
+async function askGemini(prompt: string): Promise<string> {
+    try {
+        const response = await axios.post(`${API_URL}?key=${API_KEY}`, {
+            prompt: prompt,
+            max_tokens: 100
+        });
+        return response.data.choices[0].text.trim();
+    } catch (error) {
+        console.error("Error fetching from Gemini API", error);
+        return "Error connecting to AI.";
+    }
 }
 
-// This method is called when your extension is deactivated
+export function activate(context: vscode.ExtensionContext) {
+    let disposable = vscode.commands.registerCommand('codeinsights-ai.askAI', async () => {
+        const input = await vscode.window.showInputBox({ prompt: "Ask Gemini AI" });
+        if (input) {
+            const response = await askGemini(input);
+            vscode.window.showInformationMessage(response);
+        }
+    });
+
+    context.subscriptions.push(disposable);
+}
+
 export function deactivate() {}
