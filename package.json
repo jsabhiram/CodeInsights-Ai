@@ -14,7 +14,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "codeinsights-ai.helloWorld",
+        "command": "codeinsights",
         "title": "Hello World"
       }
     ]

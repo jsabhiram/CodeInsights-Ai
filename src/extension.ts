@@ -22,7 +22,7 @@ async function askGemini(prompt: string): Promise<string> {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    let disposable = vscode.commands.registerCommand('codeinsights-ai.askAI', async () => {
+    let disposable = vscode.commands.registerCommand('codeinsights', async () => {
         const input = await vscode.window.showInputBox({ prompt: "Ask Gemini AI" });
         if (input) {
             const response = await askGemini(input);
